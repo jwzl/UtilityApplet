@@ -978,17 +978,14 @@ int main(int argc, char *argv[], char *envp[])
 
 	PortTermios.c_oflag = 0;
 
-	PortTermios.c_cc[VMIN] = 1;
+	PortTermios.c_cc[VMIN] = 0;
 	PortTermios.c_cc[VTIME] = 0;
 	PortTermios.c_cc[VINTR] = 0;
 	PortTermios.c_cc[VQUIT] = 0;
 	PortTermios.c_cc[VSUSP] = 0;
 
-	tcsetattr(PortHandle, TCSANOW, &PortTermios);
-	if(f_debug)
-		printTermios(&PortTermios);
-
-#ifdef	CONFIG_NOT_STD_BANDRATE
+    /* some platform not supported the TIOCSSERIAL*/
+#ifdef	CONFIG_SUPPORT_TIOCSSERIAL
 	serinfo.reserved_char[0] = 0;
 	if (ioctl(PortHandle, TIOCGSERIAL, &serinfo) < 0) {
 		printf("Cannot get serial info");
@@ -1082,7 +1079,6 @@ int main(int argc, char *argv[], char *envp[])
 		goto ERROR_END;
 	}
 #else
-	memset(&PortTermios, 0, sizeof(struct termios));
 	/* C_ISPEED     Input baud (new interface)
        C_OSPEED     Output baud (new interface)
     */
@@ -1174,6 +1170,10 @@ int main(int argc, char *argv[], char *envp[])
     }	
 
 #endif
+    tcsetattr(PortHandle, TCSANOW, &PortTermios);
+	if(f_debug)
+		printTermios(&PortTermios);
+
 	pthread_attr_init(&ThreadAttr);
 	pthread_attr_setstacksize(&ThreadAttr, 0x10000); // 4KB
 	bRunning = 1;
