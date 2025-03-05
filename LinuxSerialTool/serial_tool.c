@@ -981,7 +981,7 @@ int main(int argc, char *argv[], char *envp[])
 			if(f_send && f_recv == 0){
                 setRTS(PortHandle, 1);
             }else if(f_send == 0 && f_recv == 1){
-                setRTS(PortHandle, 1);
+                setRTS(PortHandle, 0);
             }
 		}
 #else
@@ -998,7 +998,7 @@ int main(int argc, char *argv[], char *envp[])
 			if(f_send && f_recv == 0){
                 setRTS(PortHandle, 1);  //Act as Send
             }else if(f_send == 0 && f_recv == 1){
-                setRTS(PortHandle, 1);  //Act as Recv
+                setRTS(PortHandle, 0);  //Act as Recv
             }
 		}
 #else
