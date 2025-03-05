@@ -19,6 +19,7 @@ enum mode f_mode = MODE_RS232;
 int pause_period = 0;
 int packet_size = MAX_DATA_LEN;
 int bRunning = 0;
+int bShowRunning = 0;
 int f_firstchar = 0;
 int f_stopOnError = 0;
 int stop_time = 10;
@@ -107,6 +108,8 @@ void *SendThread(void *param)
 
 ENDSENDCLOSE:
 	f_send = 0;
+	bShowRunning = 0;
+	usleep(100000);
 	tcflush(SendPortHandle, TCOFLUSH);
 	pthread_exit(0);
 	return 0;
@@ -180,6 +183,8 @@ void *RecvThread(void *param)
 
 ENDRECVCLOSE:
 	f_recv = 0;
+	bShowRunning = 0;
+	usleep(100000);
 	pthread_exit(0);
 	return 0;
 }
@@ -188,7 +193,7 @@ void *ShowThread(void *param)
 {
 	int PortHandle = (int)param;
 
-	while(bRunning) {
+	while(bShowRunning) {
 		if (ioctl(PortHandle, TIOCGICOUNT, &icount) < 0) {
 			printf("Cannot get interrupt counters");
 			close(PortHandle);
@@ -204,7 +209,6 @@ void *ShowThread(void *param)
 			timeoutcount,
 			f_dataerror?", data error":"");
 		fflush(stdout);
-		usleep(500000);
 	}
 
 END:
@@ -257,6 +261,8 @@ void *LoopThread(void *param)
 	}
 
 ENDCLOSE:
+    bShowRunning = 0;
+	usleep(100000);
 	pthread_exit(0);
 	return 0;
 }
@@ -363,6 +369,8 @@ void *RS485Thread(void *param)
 	}
 
 ENDCLOSE:
+    bShowRunning = 0;
+	usleep(100000);
 	pthread_exit(0);
 	return 0;
 }
@@ -1177,6 +1185,7 @@ int main(int argc, char *argv[], char *envp[])
 	pthread_attr_init(&ThreadAttr);
 	pthread_attr_setstacksize(&ThreadAttr, 0x10000); // 4KB
 	bRunning = 1;
+	bShowRunning = 1;
 
 	clock_gettime(CLOCK_REALTIME, &starttime);
 
