@@ -51,6 +51,27 @@ void StopTime(void)
 	bRunning = 0;	
 }
 
+int setRTS(int fd, int level){
+    int status;
+
+    if(ioctl(fd, TIOCMGET, &status) == -1){
+        perror("setRTS(): TIOCMGET");
+        return -1;
+    }
+
+    if(level)
+        status |= TIOCM_RTS;
+    else
+        status &= ~TIOCM_RTS;
+
+    if(ioctl(fd, TIOCMSET, &status) == -1){
+        perror("setRTS(): TIOCMSET");
+        return -1;
+    }
+    
+    return 0;
+}
+
 void *SendThread(void *param)
 {
 	fd_set fds;
@@ -955,8 +976,13 @@ int main(int argc, char *argv[], char *envp[])
 #ifdef  SERIAL_IOCTL_SET_RS485
 
 		if(set_serial_mode(PortHandle, SERIAL_MODE_RS422) != 0){
-			fprintf(stderr, "set serial mode error");
-			return -1;
+		    /*Not Support, try to use RTS to control*/
+			printf("SERIAL_MODE_RS485 not Support, try to use RTS to control\n");
+			if(f_send && f_recv == 0){
+                setRTS(PortHandle, 1);
+            }else if(f_send == 0 && f_recv == 1){
+                setRTS(PortHandle, 1);
+            }
 		}
 #else
 		PortTermios.c_iflag |= IRS422;
@@ -967,8 +993,13 @@ int main(int argc, char *argv[], char *envp[])
 		printf("using RS-485 transmittion mode\n");
 #ifdef  SERIAL_IOCTL_SET_RS485
 		if(set_serial_mode(PortHandle, SERIAL_MODE_RS485) != 0){
-			fprintf(stderr, "set serial mode error");
-			return -1;
+			/*Not Support, try to use RTS to control*/
+			printf("SERIAL_MODE_RS485 not Support, try to use RTS to control\n");
+			if(f_send && f_recv == 0){
+                setRTS(PortHandle, 1);  //Act as Send
+            }else if(f_send == 0 && f_recv == 1){
+                setRTS(PortHandle, 1);  //Act as Recv
+            }
 		}
 #else
 		PortTermios.c_iflag &= ~IRS422;
