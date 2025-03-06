@@ -129,8 +129,8 @@ void *SendThread(void *param)
 
 ENDSENDCLOSE:
 	f_send = 0;
-	bShowRunning = 0;
 	usleep(100000);
+	bShowRunning = 0;
 	tcflush(SendPortHandle, TCOFLUSH);
 	pthread_exit(0);
 	return 0;
@@ -204,8 +204,8 @@ void *RecvThread(void *param)
 
 ENDRECVCLOSE:
 	f_recv = 0;
-	bShowRunning = 0;
 	usleep(100000);
+	bShowRunning = 0;
 	pthread_exit(0);
 	return 0;
 }
@@ -282,8 +282,8 @@ void *LoopThread(void *param)
 	}
 
 ENDCLOSE:
-    bShowRunning = 0;
 	usleep(100000);
+	bShowRunning = 0;
 	pthread_exit(0);
 	return 0;
 }
@@ -390,8 +390,8 @@ void *RS485Thread(void *param)
 	}
 
 ENDCLOSE:
-    bShowRunning = 0;
 	usleep(100000);
+	bShowRunning = 0;
 	pthread_exit(0);
 	return 0;
 }
